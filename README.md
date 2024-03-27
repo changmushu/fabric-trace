@@ -92,7 +92,7 @@
 
 5. 启动后端 在fabric-trace/application/backend目录下： 执行： `go run main.go`
 
-6. 修改后端IP，将以下文件中的IP：`119.45.247.29`，换成自己云服务的IP。
+6. 修改后端IP，将以下文件中的IP：`127.0.0.1`，换成自己服务的IP。
 	```bash
 	fabric-trace/application/web/.env.development
 	fabric-trace/application/web/src/router/index.js
