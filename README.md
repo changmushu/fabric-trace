@@ -67,7 +67,7 @@
 3. 克隆本项目 
 
 	```bash
-	git clone https://gitee.com/real__cool/fabric-trace
+	git clone https://github.com/changmushu/fabric-trace.git
 	```
 
 4. 启动区块链部分。在fabric-trace/blockchain/network目录下:
