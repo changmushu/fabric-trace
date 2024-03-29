@@ -3,6 +3,7 @@ package pkg
 import (
 	"backend/model"
 	"database/sql"
+	// "log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"

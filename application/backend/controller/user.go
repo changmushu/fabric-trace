@@ -3,21 +3,42 @@ package controller
 import (
 	"backend/model"
 	"backend/pkg"
+	// "log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+type user struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Usertype string `json:"userType"`
+}
+
 func Register(c *gin.Context) {
 	// 将用户信息存入mysql数据库
+
+	var userJson user
 	var user model.MysqlUser
+	//将表单数据转为JSON数据
+	if err := c.ShouldBindJSON(&userJson); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	//赋值
 	user.UserID = pkg.GenerateID()
-	user.Username = c.PostForm("username")
-	user.Password = c.PostForm("password")
-	user.RealInfo = pkg.EncryptByMD5(c.PostForm("username"))
+	user.Username = userJson.Username
+	user.Password = userJson.Password
+	user.RealInfo = pkg.EncryptByMD5(userJson.Username)
 	err := pkg.InsertUser(&user)
+	// log.Println(user)
 	if err != nil {
+		// log.Println("Error inserting user into MySQL database:", err)
+		// 返回错误信息给客户端或者记录日志
 		c.JSON(200, gin.H{
-			"message": "register failed：" + err.Error(),
+			"code":    500,
+			"message": "注册失败!该用户已存在！",
 		})
 		return
 	}
@@ -26,31 +47,40 @@ func Register(c *gin.Context) {
 	// 将post请求的参数封装成一个数组args
 	var args []string
 	args = append(args, user.UserID)
-	args = append(args, c.PostForm("userType"))
+	args = append(args, userJson.Usertype)
 	args = append(args, user.RealInfo)
 	res, err := pkg.ChaincodeInvoke("RegisterUser", args)
 	if err != nil {
 		c.JSON(200, gin.H{
-			"message": "register failed：" + err.Error(),
+			"code":    500,
+			"message": "注册失败:" + err.Error(),
 		})
 		return
 	}
 	c.JSON(200, gin.H{
 		"code":    200,
-		"message": "register success",
+		"message": "注册成功！",
 		"txid":    res,
 	})
 }
 
 func Login(c *gin.Context) {
+	var userJson user
 	var user model.MysqlUser
-	user.Username = c.PostForm("username")
-	user.Password = c.PostForm("password")
+
+	if err := c.ShouldBindJSON(&userJson); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user.Username = userJson.Username
+	user.Password = userJson.Password
 	// 获取用户ID
 	var err error
 	user.UserID, err = pkg.GetUserID(user.Username)
 	if err != nil {
 		c.JSON(200, gin.H{
+			"code":    200,
 			"message": "没有找到该用户",
 		})
 		return
@@ -58,14 +88,16 @@ func Login(c *gin.Context) {
 	userType, err := GetUserType(user.UserID)
 	if err != nil {
 		c.JSON(200, gin.H{
-			"message": "login failed:" + err.Error(),
+			"code":    500,
+			"message": "登陆失败:" + err.Error(),
 		})
 		return
 	}
 	err = pkg.Login(&user)
 	if err != nil {
 		c.JSON(200, gin.H{
-			"message": "login failed:" + err.Error(),
+			"code":    500,
+			"message": "登陆失败:" + err.Error(),
 		})
 		return
 	}
@@ -74,21 +106,22 @@ func Login(c *gin.Context) {
 	jwt, err := pkg.GenToken(user.UserID, userType)
 	if err != nil {
 		c.JSON(200, gin.H{
-			"message": "login failed:" + err.Error(),
+			"code":    500,
+			"message": "登陆失败:" + err.Error(),
 		})
 		return
 	}
 	c.JSON(200, gin.H{
 		"code":    200,
-		"message": "login success",
-		"jwt":     jwt,
+		"message": "登陆成功！",
+		"token":     jwt,
 	})
 }
 
 func Logout(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code":    200,
-		"message": "logout success",
+		"message": "登出成功！",
 	})
 }
 
