@@ -1,5 +1,5 @@
 严格按照以下步骤操作：
-环境 Ubuntu 20.04
+环境 Ubuntu 20.04 && MACOS 11.7
 
 1. 安装docker 
 
@@ -74,7 +74,9 @@
 
 	```bash
 	# 仅在首次使用执行：下载Fabric Docker镜像
-	./install-fabric.sh -f 2.5.6 d 
+	./install-fabric.sh -f 2.5.6 d
+ 	# MAC
+ 	./install-fabric.sh -f 2.5.6 d b
 	```
 
 	```bash
