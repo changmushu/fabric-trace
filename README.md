@@ -1,5 +1,5 @@
 严格按照以下步骤操作：
-环境 Ubuntu 20.04 && Macos 11.7
+环境 Ubuntu 20.04 && Macos 11.7 & 13.6
 
 1. 安装docker 
 
